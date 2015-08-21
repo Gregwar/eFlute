@@ -4,34 +4,8 @@
 #include <terminal.h>
 #include <main.h>
 #include <SdFat.h>
-#include "Balance.h"
-
-#define HOLE1       3
-#define HOLE2       4
-#define HOLE3       5
-#define HOLE4       6
-#define HOLE5       7
-#define HOLE6       8
-#define HOLE7       9
-#define HOLE8       10
-#define HOLES_EN    2
-
-Balance blow(22, 21);
-
-TERMINAL_COMMAND(tare, "Tare")
-{
-    blow.tare();
-    while (blow.taring) {
-        blow.tick();
-    }
-}
-
-TERMINAL_COMMAND(blow, "Blow test")
-{
-    while (!SerialUSB.available()) {
-        terminal_io()->println(blow.sample());
-    }
-}
+#include "holes.h"
+#include "blow.h"
 
 // Sign an expression
 #define VALUE_SIGN(value, length) \
@@ -40,6 +14,7 @@ TERMINAL_COMMAND(blow, "Blow test")
     : (value-(1<<length)))
 
 TERMINAL_PARAMETER_INT(vol, "Volume", 100);
+TERMINAL_PARAMETER_INT(targetVol, "Volume", 100);
 
 bool playing = false;
 HardwareSPI spi(1);
@@ -99,32 +74,15 @@ TERMINAL_COMMAND(dac, "dac set")
 
 TERMINAL_COMMAND(sin, "Sinus")
 {
-    float amp = atof(argv[0]);
     float samp = 0;
     int i = 0;
     while (!SerialUSB.available()) {
-//        samp = 0.995*samp+0.005*amp;
-        i++;
-        if (i >= 50) i = 0;
-        dac.set(values[i]*(samp/2)+2000);
-        dac.latch();
-        if (blow.dataAvailable()) {
-            samp = (blow.read()-blow.zero)/100;
-            delay_us(1);
-        } else {
-            delay_us(6);
-        }
-    }
-    /*
-    while (samp > 0.01) {
-        samp = 0.995*samp;
         i++;
         if (i >= 50) i = 0;
         dac.set(values[i]*(samp/2)+2000);
         dac.latch();
         delay_us(6);
     }
-    */
 }
 
 #define SAMPLES_BUF 512
@@ -151,6 +109,8 @@ void interrupt()
     } else {
         dac.set(2000+(samples2[samples_position--]/(16000/vol)));
     }
+    if (vol < targetVol) vol++;
+    if (vol > targetVol) vol--;
 }
 
 void fillBuffer(int *samples)
@@ -205,6 +165,7 @@ TERMINAL_COMMAND(play, "Play a sound")
             timer.pause();
             timer.setPrescaleFactor(1);
             timer.setOverflow(2250);
+            //timer.setOverflow(1632);
             timer.setCompare(TIMER_CH1, 1);
             timer.attachCompare1Interrupt(interrupt);
             timer.refresh();
@@ -221,17 +182,13 @@ TERMINAL_COMMAND(play, "Play a sound")
     }
 }
 
-TERMINAL_COMMAND(holes, "Holes")
+TERMINAL_COMMAND(card, "Card")
 {
     digitalWrite(HOLES_EN, HIGH);
-    terminal_io()->println(analogRead(HOLE1));
-    terminal_io()->println(analogRead(HOLE2));
-    terminal_io()->println(analogRead(HOLE3));
-    terminal_io()->println(analogRead(HOLE4));
-    terminal_io()->println(analogRead(HOLE5));
-    terminal_io()->println(analogRead(HOLE6));
-    terminal_io()->println(analogRead(HOLE7));
-    terminal_io()->println(analogRead(HOLE8));
+    while (!SerialUSB.available()) {
+        terminal_io()->println(analogRead(HOLE1));
+        delay(5);
+    }
 }
 
 /**
@@ -239,23 +196,16 @@ TERMINAL_COMMAND(holes, "Holes")
  */
 void setup()
 {
-    blow.init();
+    // Initializing blow
+    blow_init();
+    
+    // Holes
+    holes_init();
 
-    // For sd card
+    // Remapping SPI1 for sd card
     afio_remap(AFIO_REMAP_SPI1);
 
-    // Holes
-    pinMode(HOLES_EN, OUTPUT);
-    digitalWrite(HOLES_EN, LOW);
-    pinMode(HOLE1, INPUT_FLOATING);
-    pinMode(HOLE2, INPUT_FLOATING);
-    pinMode(HOLE3, INPUT_FLOATING);
-    pinMode(HOLE4, INPUT_FLOATING);
-    pinMode(HOLE5, INPUT_FLOATING);
-    pinMode(HOLE6, INPUT_FLOATING);
-    pinMode(HOLE7, INPUT_FLOATING);
-    pinMode(HOLE8, INPUT_FLOATING);
-
+    // Terminal
     terminal_init(&SerialUSB);
 }
 
@@ -269,11 +219,11 @@ void loop()
     if (playing) {
         populateSamples();
 
-        if (blow.dataAvailable()) {
-            int tmp = (blow.sample()-24);
+        if (blow_tick()) {
+            int tmp = (blow_value()/100-24);
             if (tmp < 0) tmp = 0;
             if (tmp > 1000) tmp = 1000;
-            vol = 0.8*vol+0.2*tmp;
+            targetVol = tmp;
         }
     }
 }
