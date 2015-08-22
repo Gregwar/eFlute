@@ -90,7 +90,7 @@ LIBMAPLE_MODULES += $(SRCROOT)/libraries/Servo
 LIBMAPLE_MODULES += $(SRCROOT)/libraries/LiquidCrystal
 LIBMAPLE_MODULES += $(SRCROOT)/libraries/Wire
 # Experimental libraries:
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/FreeRTOS
+# LIBMAPLE_MODULES += $(SRCROOT)/libraries/FreeRTOS
 
 # User modules:
 ifneq ($(USER_MODULES),)

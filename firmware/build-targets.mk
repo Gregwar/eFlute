@@ -1,7 +1,7 @@
 # Project targets
 # Defines here your cpp source files
 # Ex : main.cpp test.cpp ...
-SRC_FILES = main.cpp HX711.cpp blow.cpp holes.cpp
+SRC_FILES = main.cpp HX711.cpp blow.cpp holes.cpp samples.cpp dyn.cpp
 OBJ_FILES = $(addprefix $(BUILD_PATH)/,$(SRC_FILES:.cpp=.o))
 
 $(BUILD_PATH)/%.o: %.cpp

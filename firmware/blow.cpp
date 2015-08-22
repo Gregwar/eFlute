@@ -13,7 +13,12 @@ void blow_init()
     winSize = 0;
 
     blow.read();
-    offset = blow.read();
+
+    int sum = 0;
+    for (int k=0; k<10; k++) {
+        sum += blow.read();
+    }
+    offset = sum/10;
 }
 
 bool blow_tick()
@@ -25,14 +30,14 @@ bool blow_tick()
         if (sample < winMin) winMin = sample;
         winSize++;
 
-        if ((winMax-winMin) > 500) {
+        if ((winMax-winMin) > 700) {
             winSize = 0;
             winMin = winMax = sample;
         }
 
         int nOffset = (winMin+winMax)/2;
         int delta = abs(nOffset-offset);
-        if (winSize > (5+delta/200)) {
+        if (winSize > (10+delta/200)) {
             offset = nOffset;
             winSize = 0;
             winMin = winMax = sample;
@@ -51,13 +56,13 @@ int blow_value()
 TERMINAL_COMMAND(blow, "Blow test")
 {
     while (!SerialUSB.available()) {
-        blow_tick();
-        terminal_io()->print(blow_value());
-        terminal_io()->print(" ");
-        terminal_io()->print(sample);
-        terminal_io()->print(" ");
-        terminal_io()->print(offset);
-        terminal_io()->println();
-        delay_us(10);
+        if (blow_tick()) {
+            terminal_io()->print(blow_value());
+            terminal_io()->print(" ");
+            terminal_io()->print(sample);
+            terminal_io()->print(" ");
+            terminal_io()->print(offset);
+            terminal_io()->println();
+        }
     }
 }
