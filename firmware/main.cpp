@@ -81,12 +81,12 @@ inline short compute_to_play()
             dyn[k].pos++;
             if (dyn[k].pos >= dyn[k].count) {
                 dyn[k].pos = 0;
-                if (&dyn[k] != currentSample) {
-                    dyn[k].vol -= 20;
-                } else {
-                    if (dyn[k].vol < 1000) {
-                        dyn[k].vol += 40;
-                    }
+            }
+            if (&dyn[k] != currentSample) {
+                dyn[k].vol -= 1;
+            } else {
+                if (dyn[k].vol < 1000) {
+                    dyn[k].vol += 1;
                 }
             }
         }

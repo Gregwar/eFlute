@@ -2,8 +2,9 @@
 #include <terminal.h>
 #include "dyn.h"
 
+#define DATA_SIZE   4000
 struct sample dyn[DYN_SIZE];
-static short data[DYN_SIZE][200];
+static short data[DATA_SIZE];
 
 TERMINAL_PARAMETER_FLOAT(freq, "Frequency base", 523.25);
 TERMINAL_PARAMETER_FLOAT(h1, "Amplitude for H1", 16000);
@@ -32,22 +33,26 @@ void dyn_gen()
     const float *tones;
     if (scale == 0) tones = scale0;
     if (scale == 1) tones = scale1;
+    int pos = 0;
 
     for (int k=0; k<DYN_SIZE; k++) {
         float f = freq*pow(2, (tones[k]+tr)/12.0);
         int samples = 44100.0/f;
-        if (samples > 200) samples = 200;
-        dyn[k].values = data[k];
+        dyn[k].values = &data[pos];
+        if (pos > DATA_SIZE) pos = DATA_SIZE;
         dyn[k].count = samples;
         for (int i=0; i<samples; i++) {
             float x = i/(float)samples;
             float pi = M_PI;
             float a = pi*2*x;
-            data[k][i] = 
+            data[pos++] = 
                   h1*wave(sin(a+p1*pi*2), w1)
                 + h2*wave(sin(a*2+p2*pi*2), w2)
                 + h3*wave(sin(a*4+p3*pi*2), w3)
                 ;
+            if (pos >= DATA_SIZE) {
+                pos = DATA_SIZE-1;
+            }
         }
     }
 }
