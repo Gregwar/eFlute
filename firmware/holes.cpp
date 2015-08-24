@@ -3,6 +3,7 @@
 
 static int holes[8];
 static int holes_low[8];
+static int holes_pin[8] = {HOLE1, HOLE2, HOLE3, HOLE4, HOLE5, HOLE6, HOLE7, HOLE8};
 
 TERMINAL_COMMAND(holes, "Holes")
 {
@@ -37,29 +38,26 @@ void holes_init()
 void holes_tick()
 {
     static int k = 0;
+    static int i = 0;
 
     if (k == 0) {
-        holes_low[0] = analogRead(HOLE1);
-        holes_low[1] = analogRead(HOLE2);
-        holes_low[2] = analogRead(HOLE3);
-        holes_low[3] = analogRead(HOLE4);
-        holes_low[4] = analogRead(HOLE5);
-        holes_low[5] = analogRead(HOLE6);
-        holes_low[6] = analogRead(HOLE7);
-        holes_low[7] = analogRead(HOLE8);
-        digitalWrite(HOLES_EN, HIGH);
-        k = 1;
+        holes_low[i] = analogRead(holes_pin[i]);
+        i++;
+
+        if (i >= 8) {
+            digitalWrite(HOLES_EN, HIGH);
+            k = 1;
+            i = 0;
+        }
     } else {
-        holes[0] = holes_low[0]-analogRead(HOLE1);
-        holes[1] = holes_low[1]-analogRead(HOLE2);
-        holes[2] = holes_low[2]- analogRead(HOLE3);
-        holes[3] = holes_low[3]-analogRead(HOLE4);
-        holes[4] = holes_low[4]-analogRead(HOLE5);
-        holes[5] = holes_low[5]-analogRead(HOLE6);
-        holes[6] = holes_low[6]-analogRead(HOLE7);
-        holes[7] = holes_low[7]-analogRead(HOLE8);
-        digitalWrite(HOLES_EN, LOW);
-        k = 0;
+        holes[i] = holes_low[i]-analogRead(holes_pin[i]);
+        i++;
+
+        if (i >= 8) {
+            digitalWrite(HOLES_EN, LOW);
+            k = 0;
+            i = 0;
+        }
     }
 }
 

@@ -34,10 +34,13 @@ int HX711::readBit()
     unsigned int result = 0;
     digitalWrite(sck_pin, HIGH);
     delay_us(1);
+    /*
     for (int k=0; k<50; k++) {
         result += digitalRead(dt_pin);
     }
     result = (result > 25);
+    */
+    result = digitalRead(dt_pin);
     digitalWrite(sck_pin, LOW);
     delay_us(1);
 

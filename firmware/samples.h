@@ -4,6 +4,9 @@
 struct sample {
     const short *values;
     int count;
+    int vol;
+    int pos;
+    bool active;
 };
 extern const struct sample sample_c;
 extern const struct sample sample_d;

@@ -9,6 +9,8 @@
 #include "samples.h"
 #include "dyn.h"
 
+TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 10);
+
 // #define DEBUG
 
 class DAC
@@ -54,9 +56,54 @@ class DAC
 
 DAC dac(31, 2, 27);
 
-const struct sample *currentSample;
-const struct sample *nextSample;
-int pos, vol, targetVol;
+struct sample *currentSample;
+int vol, targetVol;
+int echoVol, echoPos;
+bool compute;
+int nextVal;
+
+/*
+#define TO_PLAY_SIZE    100
+short to_play[TO_PLAY_SIZE];
+int to_play_pos;
+*/
+
+inline short compute_to_play()
+{
+    int sumVol = 0, sumVal = 0;
+    for (int k=0; k<DYN_SIZE; k++) {
+        if (dyn[k].vol > 0 || &dyn[k] == currentSample) {
+            int dval = dyn[k].values[dyn[k].pos];
+            int dvol = dyn[k].vol;
+            sumVal += dvol*(2048+(dval*vol)/16000);
+            sumVol += dvol;
+
+            dyn[k].pos++;
+            if (dyn[k].pos >= dyn[k].count) {
+                dyn[k].pos = 0;
+                if (&dyn[k] != currentSample) {
+                    dyn[k].vol -= 20;
+                } else {
+                    if (dyn[k].vol < 1000) {
+                        dyn[k].vol += 40;
+                    }
+                }
+            }
+        }
+    }
+    int val = 0;
+    if (sumVol > 0) {
+        val = sumVal/sumVol;
+    }
+    return val;
+}
+
+void setSample(struct sample *sample)
+{
+    if (sample != currentSample) {
+        currentSample = sample;
+    }
+}
 
 void interrupt()
 {
@@ -64,30 +111,20 @@ void interrupt()
 
     if (currentSample != NULL) {
         dac.latch();
-        int val = currentSample->values[pos];
+        int val = compute_to_play();
 
-        val = (2000+val/(18000/vol));
 #ifdef DEBUG
         terminal_io()->println(val);
 #else
         dac.set(val);
 #endif
-        pos++;
-
-        if (pos >= currentSample->count) {
-            pos = 0;
-            currentSample = nextSample;
-        }
 
         k++;
-        if (k > 5) {
+        if (k > 2) {
             k = 0;
             if (vol < targetVol) vol++;
             if (vol > targetVol) vol--;
         }
-    } else {
-        pos = 0;
-        currentSample = nextSample;
     }
 }
 
@@ -124,8 +161,11 @@ void setup()
     timer.resume();
 #endif
     currentSample = NULL;
-    nextSample = NULL;
-    pos = 0;
+
+    for (int k=0; k<DYN_SIZE; k++) {
+        dyn[k].pos = 0;
+        dyn[k].vol = 0;
+    }
 }
 
 /**
@@ -133,89 +173,98 @@ void setup()
  */
 void loop()
 {
+    static int k = 0;
+
 #ifdef DEBUG
     interrupt();
 #endif
 
-    static int k = 0;
-    k++;
-
-    if (k > 100) {
-        k = 0;
-    }
-
     // Terminal
     terminal_tick();
 
-    if (k == 0) {
+    if (k++ > 300) {
+        k = 0;
         // Ticking holes
         holes_tick();
         char holes = holes_value();
         switch (holes) {
 #ifdef DYN
             case 0b11111111:
-                nextSample = &dyn[0];
+                setSample(&dyn[0]);
                 break;
             case 0b10111111:
-                nextSample = &dyn[1];
+                setSample(&dyn[1]);
                 break;
             case 0b10011111:
-                nextSample = &dyn[2];
+                setSample(&dyn[2]);
                 break;
             case 0b10001111:
-                nextSample = &dyn[3];
+                setSample(&dyn[3]);
                 break;
             case 0b10000111:
-                nextSample = &dyn[4];
+                setSample(&dyn[4]);
                 break;
             case 0b10000011:
-                nextSample = &dyn[5];
+                setSample(&dyn[5]);
                 break;
             case 0b10000001:
-                nextSample = &dyn[6];
+                setSample(&dyn[6]);
                 break;
             case 0b10000010:
-                nextSample = &dyn[7];
+                setSample(&dyn[7]);
+                break;
+            case 0b00000010:
+                setSample(&dyn[8]);
+                break;
+            case 0b00011111:
+                setSample(&dyn[9]);
                 break;
 #else
             case 0b11111111:
-                nextSample = &sample_c;
+                currentSample = &sample_c;
                 break;
             case 0b10111111:
-                nextSample = &sample_d;
+                currentSample = &sample_d;
                 break;
             case 0b10011111:
-                nextSample = &sample_e;
+                currentSample = &sample_e;
                 break;
             case 0b10001111:
-                nextSample = &sample_f;
+                currentSample = &sample_f;
                 break;
             case 0b10000111:
-                nextSample = &sample_g;
+                currentSample = &sample_g;
                 break;
             case 0b10000011:
-                nextSample = &sample_a;
+                currentSample = &sample_a;
                 break;
             case 0b10000001:
-                nextSample = &sample_b;
+                currentSample = &sample_b;
                 break;
             case 0b10000010:
-                nextSample = &sample_c2;
+                currentSample = &sample_c2;
                 break;
 #endif
-            default:
-                nextSample = NULL;
-                break;
         }
     }
 
     // Adjusting volume
     if (blow_tick()) {
         int tmp = (blow_value()/100)-20;
-        tmp *= 4;
+        tmp *= volGain;
         if (tmp < 0) tmp = 0;
-        if (tmp > 1000) tmp = 1000;
+        if (tmp > 2000) tmp = 2000;
         targetVol = tmp;
+    }
+}
+
+TERMINAL_COMMAND(test, "Test")
+{
+    dyn_gen();
+    for (int k=0; k<DYN_SIZE; k++) {
+        setSample(&dyn[k]);
+        targetVol = 400;
+        delay(100);
     }
 }
 
@@ -225,12 +274,16 @@ TERMINAL_COMMAND(benchmark, "Benchmark")
     targetVol = 100;
     HardwareTimer timer(1);
     timer.pause();
-    nextSample = &sample_c;
+    setSample(&dyn[0]);
+
     int start = micros();
+
     for (int k=0; k<44100; k++) {
         interrupt();
     }
+
     int len = micros()-start;
     terminal_io()->println(len);
+
     timer.resume();
 }
