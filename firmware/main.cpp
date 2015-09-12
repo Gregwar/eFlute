@@ -146,7 +146,7 @@ void interrupt()
 #endif
 
         k++;
-        if (k > 4) {
+        if (k > 2) {
             k = 0;
             if (vol < targetVol) vol++;
             if (vol > targetVol) vol--;
@@ -364,4 +364,16 @@ TERMINAL_COMMAND(mem, "mem")
     int y;
     terminal_io()->println(((int)&x)-0x20000000);
     terminal_io()->println(((int)&y)-0x20000000);
+}
+
+TERMINAL_COMMAND(benchmarkholes, "Benchmark holes")
+{
+    int start = micros();
+
+    for (int k=0; k<10000; k++) {
+        holes_tick();
+    }
+
+    int len = micros()-start;
+    terminal_io()->println(len);
 }
