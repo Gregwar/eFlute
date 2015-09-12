@@ -9,7 +9,7 @@
 #include "samples.h"
 #include "dyn.h"
 
-TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 1.5);
+TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 3.0);
 
 // #define DEBUG
 
@@ -195,6 +195,31 @@ void setup()
     }
 }
 
+void inhale()
+{
+    int note = -1;
+    for (int k=0; k<DYN_SIZE; k++) {
+        if (currentSample == &dyn[k]) note = k;
+    }
+    /*
+    terminal_io()->print("Inhale: ");
+    terminal_io()->println(note);
+    */
+    
+    set_scale(0);
+    if (note == 0) {
+        set_freq(523.25);
+    }
+    if (note == 1) {
+        set_freq(698.46);
+    }
+    if (note == 2) {
+        set_freq(783.99);
+    }
+
+    dyn_gen();
+}
+
 /**
  * Loop function
  */
@@ -209,7 +234,7 @@ void loop()
     // Terminal
     terminal_tick();
 
-    if (k++ > 300) {
+    if (k++ > 200) {
         k = 0;
         // Ticking holes
         holes_tick();
@@ -277,7 +302,17 @@ void loop()
 
     // Adjusting volume
     if (blow_tick()) {
-        int tmp = (blow_value()/100)-10;
+        static bool inhaling = false;
+        int tmp = (blow_value()/100)-15;
+
+        if (inhaling) {
+            if (tmp > -40) inhaling = false;
+        } else {
+            if (tmp < -300) {
+                inhaling = true;
+                inhale();
+            }
+        }
         tmp *= volGain;
         if (tmp < 0) tmp = 0;
         if (tmp > 2000) tmp = 2000;

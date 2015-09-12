@@ -19,6 +19,21 @@ TERMINAL_PARAMETER_FLOAT(p3, "Phase", 0);
 TERMINAL_PARAMETER_INT(scale, "Scale select", 0);
 TERMINAL_PARAMETER_INT(tr, "Transpose", 0);
 
+void set_freq(float v)
+{
+    freq = v;
+}
+
+void set_tr(int v)
+{
+    tr = v;
+}
+
+void set_scale(int v)
+{
+    scale = v;
+}
+
 static float wave(float v, float p)
 {
     float sign = (v < 0) ? -1 : 1;
