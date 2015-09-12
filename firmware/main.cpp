@@ -9,7 +9,7 @@
 #include "samples.h"
 #include "dyn.h"
 
-TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 10);
+TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 1.5);
 
 // #define DEBUG
 
@@ -57,7 +57,10 @@ class DAC
 DAC dac(31, 2, 27);
 
 struct sample *currentSample;
-int vol, targetVol;
+struct sample *currentSamples[DYN_SIZE];
+int currentSamplesNb;
+TERMINAL_PARAMETER_INT(targetVol, "Target vol", 0);
+int vol;
 int echoVol, echoPos;
 bool compute;
 int nextVal;
@@ -72,21 +75,23 @@ inline short compute_to_play()
 {
     int sumVol = 0, sumVal = 0;
     for (int k=0; k<DYN_SIZE; k++) {
-        if (dyn[k].vol > 0 || &dyn[k] == currentSample) {
-            int dval = dyn[k].values[dyn[k].pos];
-            int dvol = dyn[k].vol;
-            sumVal += dvol*(2048+(dval*vol)/16000);
+    }
+    for (int k=0; k<currentSamplesNb; k++) {
+        int dval = currentSamples[k]->values[currentSamples[k]->pos];
+        int dvol = currentSamples[k]->vol;
+        if (dvol > 0 || currentSamples[k] == currentSample) {
+            sumVal += dvol*((dval*vol)/16000);
             sumVol += dvol;
 
-            dyn[k].pos++;
-            if (dyn[k].pos >= dyn[k].count) {
-                dyn[k].pos = 0;
+            currentSamples[k]->pos++;
+            if (currentSamples[k]->pos >= currentSamples[k]->count) {
+                currentSamples[k]->pos = 0;
             }
-            if (&dyn[k] != currentSample) {
-                dyn[k].vol -= 1;
+            if (currentSamples[k] != currentSample) {
+                currentSamples[k]->vol -= 1;
             } else {
-                if (dyn[k].vol < 1000) {
-                    dyn[k].vol += 1;
+                if (currentSamples[k]->vol < 1000) {
+                    currentSamples[k]->vol += 1;
                 }
             }
         }
@@ -95,13 +100,34 @@ inline short compute_to_play()
     if (sumVol > 0) {
         val = sumVal/sumVol;
     }
-    return val;
+    return 2048+val;
+}
+
+TERMINAL_COMMAND(dbg, "dbg")
+{
+    terminal_io()->print("There is ");
+    terminal_io()->println(currentSamplesNb);
+    for (int k=0; k<currentSamplesNb; k++) {
+        terminal_io()->print("Sample #");
+        terminal_io()->print(k);
+        terminal_io()->print(": ");
+        terminal_io()->print(currentSamples[k]->vol);
+        terminal_io()->println();
+    }
 }
 
 void setSample(struct sample *sample)
 {
     if (sample != currentSample) {
         currentSample = sample;
+        // Checking if the sample is already present in the list
+        for (int k=0; k<currentSamplesNb; k++) {
+            if (currentSamples[k] == sample) {
+                return;
+            }
+        }
+        // Adding it
+        currentSamples[currentSamplesNb++] = sample;
     }
 }
 
@@ -120,7 +146,7 @@ void interrupt()
 #endif
 
         k++;
-        if (k > 2) {
+        if (k > 4) {
             k = 0;
             if (vol < targetVol) vol++;
             if (vol > targetVol) vol--;
@@ -161,6 +187,7 @@ void setup()
     timer.resume();
 #endif
     currentSample = NULL;
+    currentSamplesNb = 0;
 
     for (int k=0; k<DYN_SIZE; k++) {
         dyn[k].pos = 0;
@@ -250,11 +277,19 @@ void loop()
 
     // Adjusting volume
     if (blow_tick()) {
-        int tmp = (blow_value()/100)-20;
+        int tmp = (blow_value()/100)-10;
         tmp *= volGain;
         if (tmp < 0) tmp = 0;
         if (tmp > 2000) tmp = 2000;
         targetVol = tmp;
+    }
+
+    // Checking if samples can be removed from the list
+    for (int k=0; k<currentSamplesNb; k++) {
+        if (currentSamples[k]->vol <= 0 && currentSamples[k] != currentSample) {
+            currentSamples[k] = currentSamples[currentSamplesNb-1];
+            currentSamplesNb--;
+        }
     }
 }
 
