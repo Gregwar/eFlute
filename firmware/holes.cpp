@@ -3,7 +3,7 @@
 
 static int holes[8];
 static int holes_low[8];
-static int holes_pin[8] = {HOLE1, HOLE2, HOLE3, HOLE4, HOLE5, HOLE6, HOLE7, HOLE8};
+static const int holes_pin[8] = {HOLE1, HOLE2, HOLE3, HOLE4, HOLE5, HOLE6, HOLE7, HOLE8};
 
 TERMINAL_COMMAND(holes, "Holes")
 {
@@ -25,14 +25,9 @@ TERMINAL_COMMAND(holes, "Holes")
 void holes_init()
 {
     pinMode(HOLES_EN, OUTPUT);
-    pinMode(HOLE1, INPUT_FLOATING);
-    pinMode(HOLE2, INPUT_FLOATING);
-    pinMode(HOLE3, INPUT_FLOATING);
-    pinMode(HOLE4, INPUT_FLOATING);
-    pinMode(HOLE5, INPUT_FLOATING);
-    pinMode(HOLE6, INPUT_FLOATING);
-    pinMode(HOLE7, INPUT_FLOATING);
-    pinMode(HOLE8, INPUT_FLOATING);
+    for (int k=0; k<8; k++) {
+        pinMode(holes_pin[k], INPUT_FLOATING);
+    }
 }
 
 void holes_tick()

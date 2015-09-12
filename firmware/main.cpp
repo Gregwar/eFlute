@@ -159,6 +159,9 @@ void interrupt()
  */
 void setup()
 {
+    // Terminal
+    terminal_init(&SerialUSB);
+
 #ifdef DYN
     dyn_init();
 #endif
@@ -171,9 +174,6 @@ void setup()
 
     // Remapping SPI1 for sd card
     afio_remap(AFIO_REMAP_SPI1);
-
-    // Terminal
-    terminal_init(&SerialUSB);
 
     // Ticking @32000
 #ifndef DEBUG
@@ -321,4 +321,12 @@ TERMINAL_COMMAND(benchmark, "Benchmark")
     terminal_io()->println(len);
 
     timer.resume();
+}
+
+int x;
+TERMINAL_COMMAND(mem, "mem")
+{
+    int y;
+    terminal_io()->println(((int)&x)-0x20000000);
+    terminal_io()->println(((int)&y)-0x20000000);
 }

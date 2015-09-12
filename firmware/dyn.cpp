@@ -16,8 +16,8 @@ TERMINAL_PARAMETER_FLOAT(w3, "Wave power", 1);
 TERMINAL_PARAMETER_FLOAT(p1, "Phase", 0);
 TERMINAL_PARAMETER_FLOAT(p2, "Phase", 0);
 TERMINAL_PARAMETER_FLOAT(p3, "Phase", 0);
-TERMINAL_PARAMETER_INT(tr, "Transpose", 0);
 TERMINAL_PARAMETER_INT(scale, "Scale select", 0);
+TERMINAL_PARAMETER_INT(tr, "Transpose", 0);
 
 static float wave(float v, float p)
 {
@@ -25,18 +25,33 @@ static float wave(float v, float p)
     return sign*pow(fabs(v), p);
 }
 
-static const float scale0[DYN_SIZE] = {0, 2, 4, 5, 7, 9, 11, 12, 14, 16};
-static const float scale1[DYN_SIZE] = {0, 3, 5, 6, 7, 10, 12, 15, 17, 18};
+static const float scale0[] = {0, 2, 4, 5, 7, 9, 11};
+#define scale0_size (sizeof(scale0)/sizeof(float))
+static const float scale1[] = {0, 3, 5, 6, 7, 10};
+#define scale1_size (sizeof(scale1)/sizeof(float))
 
 void dyn_gen()
 {
     const float *tones;
-    if (scale == 0) tones = scale0;
-    if (scale == 1) tones = scale1;
+    int tones_size;
+    if (scale == 0) {
+        tones = scale0;
+        tones_size = scale0_size;
+    }
+    if (scale == 1) {
+        tones = scale1;
+        tones_size = scale1_size;
+    }
     int pos = 0;
+    int trn = tr;
 
     for (int k=0; k<DYN_SIZE; k++) {
-        float f = freq*pow(2, (tones[k]+tr)/12.0);
+        int octave = 12*(trn/tones_size);
+        if (trn < 0) {
+            octave -= 12;
+        }
+        float f = freq*pow(2, (tones[(trn+10*tones_size)%tones_size]+octave)/12.0);
+        trn++;
         int samples = 44100.0/f;
         dyn[k].values = &data[pos];
         if (pos > DATA_SIZE) pos = DATA_SIZE;
