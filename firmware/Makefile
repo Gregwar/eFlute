@@ -4,7 +4,7 @@
 
 ## Local configuration
 LIB_MAPLE_HOME = $(HOME)/Maple/LibMaple
-LIB_ROBOT_HOME = $(HOME)/Maple/LibRobotCampus
+LIB_ROBOT_HOME = $(HOME)/Maple/LibRhoban
 LIB_SDFAT = SdFat
 PATH := $(PATH):$(CURDIR)/../BinutilsArm/bin
 
@@ -65,7 +65,7 @@ TARGET_FLAGS    += -I$(LIBMAPLE_PATH)/include/libmaple \
                    -I$(LIB_ROBOT_HOME)/ \
                    -I$(LIB_SDFAT)
 TARGET_FLAGS += -I$(LIBRARIES_PATH) # for internal lib. includes, e.g. <Wire/WireBase.h>
-GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib \
+GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib -DFAST_ADC \
                    -ffunction-sections -fdata-sections \
 		   -Wl,--gc-sections $(TARGET_FLAGS) \
 		   -DBOOTLOADER_$(BOOTLOADER) -DSPI1_REMAPPED
