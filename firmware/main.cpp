@@ -9,7 +9,7 @@
 #include "samples.h"
 #include "dyn.h"
 
-TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 3.0);
+TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 10.0);
 
 // #define DEBUG
 
@@ -206,7 +206,6 @@ void inhale()
     terminal_io()->println(note);
     */
     
-    set_scale(0);
     if (note == 0) {
         set_freq(523.25);
     }
