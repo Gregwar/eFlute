@@ -12,7 +12,8 @@
 #define HOLES_EN    2
 
 void holes_init();
-void holes_tick();
+bool holes_tick();
+void holes_cycle();
 char holes_value();
 
 #endif

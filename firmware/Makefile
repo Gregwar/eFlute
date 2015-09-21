@@ -65,10 +65,11 @@ TARGET_FLAGS    += -I$(LIBMAPLE_PATH)/include/libmaple \
                    -I$(LIB_ROBOT_HOME)/ \
                    -I$(LIB_SDFAT)
 TARGET_FLAGS += -I$(LIBRARIES_PATH) # for internal lib. includes, e.g. <Wire/WireBase.h>
-GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib -DFAST_ADC \
+GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib   \
                    -ffunction-sections -fdata-sections \
 		   -Wl,--gc-sections $(TARGET_FLAGS) \
-		   -DBOOTLOADER_$(BOOTLOADER) -DSPI1_REMAPPED
+		   -DBOOTLOADER_$(BOOTLOADER) -DSPI1_REMAPPED \
+		   -DFAST_ADC
 GLOBAL_CXXFLAGS := -fno-rtti -fno-exceptions -Wall $(TARGET_FLAGS)
 GLOBAL_ASFLAGS  := -x assembler-with-cpp $(TARGET_FLAGS)
 LDFLAGS  = $(TARGET_LDFLAGS) $(TOOLCHAIN_LDFLAGS) -mcpu=cortex-m3 -mthumb \

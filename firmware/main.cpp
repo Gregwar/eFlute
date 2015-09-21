@@ -13,48 +13,47 @@ TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 10.0);
 
 // #define DEBUG
 
-class DAC
+#define DAC_CS          31
+#define DAC_SPI         2
+#define DAC_LATCH       27
+
+HardwareSPI dac_spi(DAC_SPI);
+spi_dev *dac_dev;
+
+void dac_init()
 {
-    public:
-        spi_dev *dev;
+    pinMode(DAC_LATCH, OUTPUT);
+    digitalWrite(DAC_LATCH, HIGH);
+    dac_spi.begin(SPI_18MHZ, MSBFIRST, 0);
+    pinMode(DAC_CS, OUTPUT);
+    digitalWrite(DAC_CS, HIGH);
+    dac_dev = dac_spi.c_dev();
+}
 
-        DAC(int cs_, int spiNum, int latchPin_)
-            : spi(spiNum), latchPin(latchPin_), cs(cs_)
-        {
-            pinMode(latchPin, OUTPUT);
-            digitalWrite(latchPin, HIGH);
-            spi.begin(SPI_18MHZ, MSBFIRST, 0);
-            pinMode(cs, OUTPUT);
-            digitalWrite(cs, HIGH);
-            dev = spi.c_dev();
-        }
+inline void dac_set(int value)
+{
+    value |= (1<<12);
+    // value |= (1<<13);
+    gpio_write_bit(PIN_MAP[DAC_CS].gpio_device, PIN_MAP[DAC_CS].gpio_bit, LOW);
+    // digitalWrite(DAC_CS, LOW);
+    char data[2];
+    data[0] = (value>>8)&0xff;
+    data[1] = (value>>0)&0xff;
 
-        void set(int value)
-        {
-            value |= (1<<12);
-            // value |= (1<<13);
-            digitalWrite(cs, LOW);
-            char data[2];
-            data[0] = (value>>8)&0xff;
-            data[1] = (value>>0)&0xff;
+    spi_tx_inline(dac_dev, data, 1);
+    spi_tx_inline(dac_dev, data+1, 1);
+    for (int K=0; K<7; K++) {
+       asm volatile("nop");
+    }
+    gpio_write_bit(PIN_MAP[DAC_CS].gpio_device, PIN_MAP[DAC_CS].gpio_bit, HIGH);
+    // digitalWrite(DAC_CS, HIGH);
+}
 
-            spi_tx_inline(dev, data, 1);
-            spi_tx_inline(dev, data+1, 1);
-            digitalWrite(cs, HIGH);
-        }
-
-        void latch()
-        {
-            digitalWrite(latchPin, LOW);
-            digitalWrite(latchPin, HIGH);
-        }
-
-        HardwareSPI spi;
-        int latchPin;
-        int cs;
-};
-
-DAC dac(31, 2, 27);
+inline void dac_latch()
+{
+    gpio_write_bit(PIN_MAP[DAC_LATCH].gpio_device, PIN_MAP[DAC_LATCH].gpio_bit, LOW);
+    gpio_write_bit(PIN_MAP[DAC_LATCH].gpio_device, PIN_MAP[DAC_LATCH].gpio_bit, HIGH);
+}
 
 struct sample *currentSample;
 struct sample *currentSamples[DYN_SIZE];
@@ -74,8 +73,6 @@ int to_play_pos;
 inline short compute_to_play()
 {
     int sumVol = 0, sumVal = 0;
-    for (int k=0; k<DYN_SIZE; k++) {
-    }
     for (int k=0; k<currentSamplesNb; k++) {
         int dval = currentSamples[k]->values[currentSamples[k]->pos];
         int dvol = currentSamples[k]->vol;
@@ -136,13 +133,13 @@ void interrupt()
     static int k = 0;
 
     if (currentSample != NULL) {
-        dac.latch();
+        dac_latch();
         int val = compute_to_play();
 
 #ifdef DEBUG
         terminal_io()->println(val);
 #else
-        dac.set(val);
+        dac_set(val);
 #endif
 
         k++;
@@ -161,6 +158,9 @@ void setup()
 {
     // Terminal
     terminal_init(&SerialUSB);
+    
+    // DAC
+    dac_init();
 
 #ifdef DYN
     dyn_init();
@@ -202,10 +202,10 @@ void inhale()
         if (currentSample == &dyn[k]) note = k;
     }
     /*
-    terminal_io()->print("Inhale: ");
-    terminal_io()->println(note);
-    */
-    
+       terminal_io()->print("Inhale: ");
+       terminal_io()->println(note);
+       */
+
     if (note == 0) {
         set_freq(523.25);
     }
@@ -218,6 +218,9 @@ void inhale()
 
     dyn_gen();
 }
+
+int holes_st = 0;
+int blows_st = 0;
 
 /**
  * Loop function
@@ -233,74 +236,77 @@ void loop()
     // Terminal
     terminal_tick();
 
-    if (k++ > 200) {
+    if (k++ > 10) {
         k = 0;
         // Ticking holes
-        holes_tick();
-        char holes = holes_value();
-        switch (holes) {
+        if (holes_tick()) {
+            holes_st++;
+            char holes = holes_value();
+            switch (holes) {
 #ifdef DYN
-            case 0b11111111:
-                setSample(&dyn[0]);
-                break;
-            case 0b10111111:
-                setSample(&dyn[1]);
-                break;
-            case 0b10011111:
-                setSample(&dyn[2]);
-                break;
-            case 0b10001111:
-                setSample(&dyn[3]);
-                break;
-            case 0b10000111:
-                setSample(&dyn[4]);
-                break;
-            case 0b10000011:
-                setSample(&dyn[5]);
-                break;
-            case 0b10000001:
-                setSample(&dyn[6]);
-                break;
-            case 0b10000010:
-                setSample(&dyn[7]);
-                break;
-            case 0b00000010:
-                setSample(&dyn[8]);
-                break;
-            case 0b00011111:
-                setSample(&dyn[9]);
-                break;
+                case 0b11111111:
+                    setSample(&dyn[0]);
+                    break;
+                case 0b10111111:
+                    setSample(&dyn[1]);
+                    break;
+                case 0b10011111:
+                    setSample(&dyn[2]);
+                    break;
+                case 0b10001111:
+                    setSample(&dyn[3]);
+                    break;
+                case 0b10000111:
+                    setSample(&dyn[4]);
+                    break;
+                case 0b10000011:
+                    setSample(&dyn[5]);
+                    break;
+                case 0b10000001:
+                    setSample(&dyn[6]);
+                    break;
+                case 0b10000010:
+                    setSample(&dyn[7]);
+                    break;
+                case 0b00000010:
+                    setSample(&dyn[8]);
+                    break;
+                case 0b00011111:
+                    setSample(&dyn[9]);
+                    break;
 #else
-            case 0b11111111:
-                currentSample = &sample_c;
-                break;
-            case 0b10111111:
-                currentSample = &sample_d;
-                break;
-            case 0b10011111:
-                currentSample = &sample_e;
-                break;
-            case 0b10001111:
-                currentSample = &sample_f;
-                break;
-            case 0b10000111:
-                currentSample = &sample_g;
-                break;
-            case 0b10000011:
-                currentSample = &sample_a;
-                break;
-            case 0b10000001:
-                currentSample = &sample_b;
-                break;
-            case 0b10000010:
-                currentSample = &sample_c2;
-                break;
+                case 0b11111111:
+                    currentSample = &sample_c;
+                    break;
+                case 0b10111111:
+                    currentSample = &sample_d;
+                    break;
+                case 0b10011111:
+                    currentSample = &sample_e;
+                    break;
+                case 0b10001111:
+                    currentSample = &sample_f;
+                    break;
+                case 0b10000111:
+                    currentSample = &sample_g;
+                    break;
+                case 0b10000011:
+                    currentSample = &sample_a;
+                    break;
+                case 0b10000001:
+                    currentSample = &sample_b;
+                    break;
+                case 0b10000010:
+                    currentSample = &sample_c2;
+                    break;
 #endif
+            }
         }
     }
 
     // Adjusting volume
     if (blow_tick()) {
+        blows_st++;
         static bool inhaling = false;
         int tmp = (blow_value()/100)-15;
 
@@ -337,42 +343,63 @@ TERMINAL_COMMAND(test, "Test")
     }
 }
 
-
-TERMINAL_COMMAND(benchmark, "Benchmark")
+TERMINAL_COMMAND(st, "Stats")
 {
+    int elapsed = millis();
+    float b = blows_st*1000.0/elapsed;
+    float h = holes_st*1000.0/elapsed;
+
+    terminal_io()->print("Blows: ");
+    terminal_io()->println(b);
+    terminal_io()->print("Holes: ");
+    terminal_io()->println(h);
+}
+
+TERMINAL_COMMAND(benchmark, "Benchmark holes")
+{
+    int start, len;
+
     targetVol = 100;
     HardwareTimer timer(1);
     timer.pause();
     setSample(&dyn[0]);
 
-    int start = micros();
+    terminal_io()->println("Doing 1000 holes cycles");
+    start = micros();
+    for (int k=0; k<1000; k++) {
+        holes_cycle();
+    }
+    len = micros()-start;
+    terminal_io()->print("µs: ");
+    terminal_io()->println(len);
 
+    terminal_io()->println("Calling interrupt 44100 times");
+    start = micros();
     for (int k=0; k<44100; k++) {
         interrupt();
     }
-
-    int len = micros()-start;
+    len = micros()-start;
+    terminal_io()->println(len);
+    
+    terminal_io()->println("Reading 160 holes");
+    len = 0;
+    for (int k=0; k<160; k++) {
+        start = micros();
+        if (blow_tick()) {
+            len += micros()-start;
+        } else {
+            k--;
+        }
+    }
+    terminal_io()->println(len);
+    
+    terminal_io()->println("Latching the DAC 44100 times");
+    start = micros();
+    for (int k=0; k<44100; k++) {
+        dac_latch();
+    }
+    len = micros()-start;
     terminal_io()->println(len);
 
     timer.resume();
-}
-
-int x;
-TERMINAL_COMMAND(mem, "mem")
-{
-    int y;
-    terminal_io()->println(((int)&x)-0x20000000);
-    terminal_io()->println(((int)&y)-0x20000000);
-}
-
-TERMINAL_COMMAND(benchmarkholes, "Benchmark holes")
-{
-    int start = micros();
-
-    for (int k=0; k<10000; k++) {
-        holes_tick();
-    }
-
-    int len = micros()-start;
-    terminal_io()->println(len);
 }

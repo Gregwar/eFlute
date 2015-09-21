@@ -7,14 +7,12 @@ static const int holes_pin[8] = {HOLE1, HOLE2, HOLE3, HOLE4, HOLE5, HOLE6, HOLE7
 
 TERMINAL_COMMAND(holes, "Holes")
 {
-    /*
     digitalWrite(HOLES_EN, LOW);
-    delay(1);
-    terminal_io()->println(analogRead(HOLE1));
+    delay(10);
+    terminal_io()->println(analogRead(HOLE8));
     digitalWrite(HOLES_EN, HIGH);
-    delay(1);
-    terminal_io()->println(analogRead(HOLE1));
-    */
+    delay(10);
+    terminal_io()->println(analogRead(HOLE8));
 
     for (int k=0; k<8; k++) {
         terminal_io()->println(holes[k]);
@@ -30,7 +28,7 @@ void holes_init()
     }
 }
 
-void holes_tick()
+bool holes_tick()
 {
     static int k = 0;
     static int i = 0;
@@ -54,6 +52,13 @@ void holes_tick()
             i = 0;
         }
     }
+
+    return (k==0 && i==0);
+}
+
+void holes_cycle()
+{
+    while (!holes_tick());
 }
 
 char holes_value()
