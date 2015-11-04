@@ -1146,9 +1146,8 @@ grid 3.5 mm, diameter 8 mm</description>
 </devices>
 </deviceset>
 <deviceset name="CPOL_EU" uservalue="yes">
-<description>680 uF 16 V : http://fr.farnell.com/panasonic/eeufr1c681l/condensateur-radial-16v-680uf/dp/1800635&lt;br&gt;
-680 uF 25 V : http://fr.farnell.com/panasonic/eeufr1e681l/capacitor-radial-25v-680uf-20/dp/2063069&lt;br&gt;
-330 uF 25 V : http://fr.farnell.com/panasonic/eeufr1e331/condensateur-radial-25v-330uf/dp/1800648?Ntt=eeufr1e331</description>
+<description>47uF: http://fr.farnell.com/panasonic-electronic-components/eee1ca470sp/condensateur-elec-alu-47uf-16v/dp/9696946
+220uF: http://fr.farnell.com/panasonic-electronic-components/eeefk1c221xp/condensateur-elec-alu-220uf-16v/dp/1850103</description>
 <gates>
 <gate name="G$1" symbol="CPOL" x="0" y="0"/>
 </gates>
