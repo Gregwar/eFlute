@@ -2414,8 +2414,8 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <part name="MAPLE" library="rhoban" deviceset="MAPLE_MINI" device=""/>
 <part name="Q1" library="transistor-npn" deviceset="BC550*" device="" technology="C"/>
 <part name="Q2" library="transistor-npn" deviceset="BC550*" device="" technology="C"/>
-<part name="R1" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="10k"/>
-<part name="R2" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="10k"/>
+<part name="R1" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="1k"/>
+<part name="R2" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="1k"/>
 <part name="U$17" library="rhoban" deviceset="RHOBAN_MCP4822" device="" value="MCP4822"/>
 <part name="P1" library="rhoban" deviceset="PRESSURE_SENSOR" device=""/>
 <part name="AMP" library="rhoban" deviceset="AN7511" device="DIP8"/>
@@ -2660,6 +2660,12 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <pinref part="U$24" gate="G$1" pin="GND"/>
 <wire x1="20.32" y1="30.48" x2="17.78" y2="30.48" width="0.1524" layer="91"/>
 <label x="10.16" y="30.48" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="JACK" gate="G$1" pin="GND"/>
+<wire x1="213.36" y1="20.32" x2="210.82" y2="20.32" width="0.1524" layer="91"/>
+<wire x1="210.82" y1="20.32" x2="210.82" y2="17.78" width="0.1524" layer="91"/>
+<label x="210.82" y="15.24" size="1.778" layer="95"/>
 </segment>
 </net>
 <net name="VCC" class="0">
@@ -3169,13 +3175,6 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <pinref part="AMP" gate="G$1" pin="SDBY"/>
 <wire x1="289.56" y1="27.94" x2="284.48" y2="27.94" width="0.1524" layer="91"/>
 <pinref part="R22" gate="G$1" pin="1"/>
-</segment>
-</net>
-<net name="N$6" class="0">
-<segment>
-<pinref part="JACK" gate="G$1" pin="GND"/>
-<wire x1="213.36" y1="20.32" x2="210.82" y2="20.32" width="0.1524" layer="91"/>
-<wire x1="210.82" y1="20.32" x2="210.82" y2="17.78" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$8" class="0">
