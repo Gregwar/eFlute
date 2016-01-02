@@ -4,7 +4,7 @@
 
 ## Local configuration
 LIB_MAPLE_HOME = $(HOME)/Maple/LibMaple
-LIB_ROBOT_HOME = $(HOME)/Maple/LibRobotCampus
+LIB_ROBOT_HOME = $(HOME)/Maple/LibRhoban
 LIB_SDFAT = SdFat
 PATH := $(PATH):$(CURDIR)/../BinutilsArm/bin
 
@@ -65,10 +65,11 @@ TARGET_FLAGS    += -I$(LIBMAPLE_PATH)/include/libmaple \
                    -I$(LIB_ROBOT_HOME)/ \
                    -I$(LIB_SDFAT)
 TARGET_FLAGS += -I$(LIBRARIES_PATH) # for internal lib. includes, e.g. <Wire/WireBase.h>
-GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib \
+GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib   \
                    -ffunction-sections -fdata-sections \
 		   -Wl,--gc-sections $(TARGET_FLAGS) \
-		   -DBOOTLOADER_$(BOOTLOADER) -DSPI1_REMAPPED
+		   -DBOOTLOADER_$(BOOTLOADER) -DSPI1_REMAPPED \
+		   -DFAST_ADC
 GLOBAL_CXXFLAGS := -fno-rtti -fno-exceptions -Wall $(TARGET_FLAGS)
 GLOBAL_ASFLAGS  := -x assembler-with-cpp $(TARGET_FLAGS)
 LDFLAGS  = $(TARGET_LDFLAGS) $(TOOLCHAIN_LDFLAGS) -mcpu=cortex-m3 -mthumb \
@@ -86,11 +87,11 @@ LIBMAPLE_MODULES += $(LIBMAPLE_MODULE_SERIES) # STM32 series submodule in libmap
 LIBMAPLE_MODULES += $(SRCROOT)/wirish
 
 # Official libraries:
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/Servo
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/LiquidCrystal
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/Wire
+#LIBMAPLE_MODULES += $(SRCROOT)/libraries/Servo
+#LIBMAPLE_MODULES += $(SRCROOT)/libraries/LiquidCrystal
+#LIBMAPLE_MODULES += $(SRCROOT)/libraries/Wire
 # Experimental libraries:
-LIBMAPLE_MODULES += $(SRCROOT)/libraries/FreeRTOS
+# LIBMAPLE_MODULES += $(SRCROOT)/libraries/FreeRTOS
 
 # User modules:
 ifneq ($(USER_MODULES),)
