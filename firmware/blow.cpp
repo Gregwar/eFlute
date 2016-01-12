@@ -2,30 +2,35 @@
 #include <terminal.h>
 #include "HX711.h"
 
-static HX711 blow(22, 21);
+#define SAMPLES 100
+#define BLOW_PIN 11
 static int winSize, winMin, winMax;
 static int offset;
 static int sample;
 
 void blow_init()
 {
-    blow.init();
+    pinMode(BLOW_PIN, INPUT_FLOATING);
     winSize = 0;
 
-    blow.read();
-
-    int sum = 0;
-    for (int k=0; k<10; k++) {
-        sum += blow.read();
+    offset = 0;
+    for (int k=0; k<SAMPLES; k++) {
+        offset += analogRead(BLOW_PIN);
     }
-    offset = sum/10;
+    winMin = winMax = analogRead(BLOW_PIN);
+    winSize = 1;
 }
 
 bool blow_tick()
 {
-    if (blow.dataAvailable()) {
-        sample = blow.read();
+    static int divider = 0;
+    static int tmpSample = 0;
 
+    tmpSample += analogRead(BLOW_PIN);
+    divider++;
+
+    if (divider > SAMPLES) {
+        sample = tmpSample;
         if (sample > winMax) winMax = sample;
         if (sample < winMin) winMin = sample;
         winSize++;
@@ -37,12 +42,14 @@ bool blow_tick()
 
         int nOffset = (winMin+winMax)/2;
         int delta = abs(nOffset-offset);
-        if (winSize > (10+delta/200)) {
+        if (winSize > (10+delta/2)) {
             offset = nOffset;
             winSize = 0;
             winMin = winMax = sample;
         }
 
+        divider = 0;
+        tmpSample = 0;
         return true;
     }
     return false;

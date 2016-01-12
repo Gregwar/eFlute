@@ -5,14 +5,23 @@ static int holes[8];
 static int holes_low[8];
 static const int holes_pin[8] = {HOLE1, HOLE2, HOLE3, HOLE4, HOLE5, HOLE6, HOLE7, HOLE8};
 
+TERMINAL_COMMAND(holedbg, "Debug")
+{
+    digitalWrite(HOLES_EN, HIGH);
+    while (!SerialUSB.available()) {
+        terminal_io()->println(analogRead(HOLE7));
+    }
+    digitalWrite(HOLES_EN, LOW);
+}
+
 TERMINAL_COMMAND(holes, "Holes")
 {
     digitalWrite(HOLES_EN, LOW);
     delay(10);
-    terminal_io()->println(analogRead(HOLE8));
+    terminal_io()->println(analogRead(HOLE1));
     digitalWrite(HOLES_EN, HIGH);
     delay(10);
-    terminal_io()->println(analogRead(HOLE8));
+    terminal_io()->println(analogRead(HOLE1));
 
     for (int k=0; k<8; k++) {
         terminal_io()->println(holes[k]);
@@ -35,10 +44,12 @@ bool holes_tick()
 
     if (k == 0) {
         holes_low[i] = analogRead(holes_pin[i]);
+        holes_low[i] = 4095;
         i++;
 
         if (i >= 8) {
             digitalWrite(HOLES_EN, HIGH);
+            delay_us(10);
             k = 1;
             i = 0;
         }
@@ -48,6 +59,7 @@ bool holes_tick()
 
         if (i >= 8) {
             digitalWrite(HOLES_EN, LOW);
+            delay_us(10);
             k = 0;
             i = 0;
         }
@@ -66,7 +78,7 @@ char holes_value()
     char val = 0;
 
     for (int k=0; k<8; k++) {
-        val |= (holes[k] > 1500)<<k;
+        val |= (holes[k] > 300)<<k;
     }
 
     return val;

@@ -9,7 +9,52 @@
 #include "samples.h"
 #include "dyn.h"
 
-TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 10.0);
+bool isUSB = false;
+
+TERMINAL_COMMAND(rc, "Go to RC mode")
+{
+    Serial1.begin(115200);
+    terminal_init(&Serial1);
+    isUSB = false;
+}
+
+TERMINAL_COMMAND(forward,
+        "Go to forward mode, the Serial1 will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
+{
+    int baudrate = 921600;
+    char buffer[512];
+    unsigned int pos;
+    terminal_io()->print("The forward mode will be enabled, ");
+    terminal_io()->println("you'll need to reboot the board to return to normal operation");
+
+    if (argc) {
+        baudrate = atoi(argv[0]);
+    }
+    terminal_io()->print("Using baudrate ");
+    terminal_io()->println(baudrate);
+
+    Serial1.begin(baudrate);
+
+    while (1) {
+        pos = 0;
+        while (Serial1.available() && pos < sizeof(buffer)) {
+            buffer[pos++] = Serial1.read();
+        }
+
+        if (pos > 0) {
+            SerialUSB.write(buffer, pos);
+        }
+
+        while (SerialUSB.available()) {
+            Serial1.write(SerialUSB.read());
+        }
+    }
+}
+
+TERMINAL_PARAMETER_BOOL(bin, "Bin mode", false);
+TERMINAL_PARAMETER_INT(binDivider, "Bin divider", 0);
+
+TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 20.0);
 
 // #define DEBUG
 
@@ -17,14 +62,28 @@ TERMINAL_PARAMETER_FLOAT(volGain, "Vol gain", 10.0);
 #define DAC_SPI         2
 #define DAC_LATCH       27
 
+int buttons[6] = {15, 16, 17, 18, 19, 20};
+
+TERMINAL_COMMAND(but, "Buttons")
+{
+    for (int k=0; k<6; k++) {
+        terminal_io()->print("Button ");
+        terminal_io()->print(k);
+        terminal_io()->print(": ");
+        terminal_io()->println(digitalRead(buttons[k]));
+    }
+}
+
 HardwareSPI dac_spi(DAC_SPI);
 spi_dev *dac_dev;
 
 void dac_init()
 {
+    dac_spi.begin(SPI_18MHZ, MSBFIRST, 0);
+
     pinMode(DAC_LATCH, OUTPUT);
     digitalWrite(DAC_LATCH, HIGH);
-    dac_spi.begin(SPI_18MHZ, MSBFIRST, 0);
+
     pinMode(DAC_CS, OUTPUT);
     digitalWrite(DAC_CS, HIGH);
     dac_dev = dac_spi.c_dev();
@@ -43,7 +102,7 @@ inline void dac_set(int value)
     spi_tx_inline(dac_dev, data, 1);
     spi_tx_inline(dac_dev, data+1, 1);
     for (int K=0; K<7; K++) {
-       asm volatile("nop");
+        asm volatile("nop");
     }
     gpio_write_bit(PIN_MAP[DAC_CS].gpio_device, PIN_MAP[DAC_CS].gpio_bit, HIGH);
     // digitalWrite(DAC_CS, HIGH);
@@ -128,19 +187,33 @@ void setSample(struct sample *sample)
     }
 }
 
+TERMINAL_COMMAND(dac, "Dac debug")
+{
+    dac_set(atoi(argv[0]));
+    dac_latch();
+}
+
+TERMINAL_PARAMETER_INT(kkk, "KKK", 0);
+
 void interrupt()
 {
-    static int k = 0;
+    if (bin) {
+        binDivider++;
+        return;
+    } else {
+        static int k = 0;
 
-    if (currentSample != NULL) {
-        dac_latch();
-        int val = compute_to_play();
+        if (currentSample != NULL && vol > 0) {
+            kkk++;
+            dac_latch();
+            int val = compute_to_play();
 
 #ifdef DEBUG
-        terminal_io()->println(val);
+            terminal_io()->println(val);
 #else
-        dac_set(val);
+            dac_set(val);
 #endif
+        }
 
         k++;
         if (k > 2) {
@@ -151,14 +224,33 @@ void interrupt()
     }
 }
 
+TERMINAL_COMMAND(vol, "See the vol")
+{
+    terminal_io()->println(vol);
+}
+
 /**
  * Setup function
  */
 void setup()
 {
+    for (int k=0; k<6; k++) {
+        pinMode(buttons[k], INPUT_PULLUP);
+    }
+
+    pinMode(22, OUTPUT);
+    digitalWrite(22, HIGH);
+    delay(100);
+    digitalWrite(22, LOW);
+    Serial1.begin(38400);
+    Serial1.write("AT+RESET\r\r");
+    Serial1.write("AT+RESET\r\r");
+    Serial1.write("AT+RESET\r\r");
+    Serial1.begin(115200);
+
     // Terminal
-    terminal_init(&SerialUSB);
-    
+    terminal_init(&Serial1);
+
     // DAC
     dac_init();
 
@@ -173,7 +265,7 @@ void setup()
     holes_init();
 
     // Remapping SPI1 for sd card
-    afio_remap(AFIO_REMAP_SPI1);
+    //    afio_remap(AFIO_REMAP_SPI1);
 
     // Ticking @32000
 #ifndef DEBUG
@@ -227,6 +319,10 @@ int blows_st = 0;
  */
 void loop()
 {
+    if (SerialUSB.available() && !isUSB) {
+        isUSB = true;
+        terminal_init(&SerialUSB);
+    }  
     static int k = 0;
 
 #ifdef DEBUG
@@ -265,14 +361,26 @@ void loop()
                 case 0b10000001:
                     setSample(&dyn[6]);
                     break;
-                case 0b10000010:
+                case 0b01111111:
                     setSample(&dyn[7]);
                     break;
-                case 0b00000010:
+                case 0b00111111:
                     setSample(&dyn[8]);
                     break;
                 case 0b00011111:
                     setSample(&dyn[9]);
+                    break;
+                case 0b00001111:
+                    setSample(&dyn[10]);
+                    break;
+                case 0b00000111:
+                    setSample(&dyn[11]);
+                    break;
+                case 0b00000011:
+                    setSample(&dyn[12]);
+                    break;
+                case 0b00000001:
+                    setSample(&dyn[13]);
                     break;
 #else
                 case 0b11111111:
@@ -308,7 +416,7 @@ void loop()
     if (blow_tick()) {
         blows_st++;
         static bool inhaling = false;
-        int tmp = (blow_value()/100)-15;
+        int tmp = (blow_value()/100)-3;
 
         if (inhaling) {
             if (tmp > -40) inhaling = false;
@@ -331,16 +439,36 @@ void loop()
             currentSamplesNb--;
         }
     }
+
+    if (binDivider > 100) {
+        char packet[6];
+        binDivider -= 44;
+        packet[0] = 0xaa;
+        packet[1] = 0xaa;
+        packet[2] = holes_value();
+        int b = blow_value();
+        if (b < 0) b = 0;
+        b /= 30;
+        packet[3] = (b>>8)&0xff;
+        packet[4] = (b>>0)&0xff;
+        packet[5] = 0x00;
+        terminal_io()->write(packet, 6);
+    }
 }
 
 TERMINAL_COMMAND(test, "Test")
 {
     dyn_gen();
+    if (argc == 0) {
+        targetVol = 400;
+    } else {
+        targetVol = atoi(argv[0]);
+    }
     for (int k=0; k<DYN_SIZE; k++) {
         setSample(&dyn[k]);
-        targetVol = 400;
         delay(100);
     }
+    targetVol = 0;
 }
 
 TERMINAL_COMMAND(st, "Stats")
@@ -380,7 +508,7 @@ TERMINAL_COMMAND(benchmark, "Benchmark holes")
     }
     len = micros()-start;
     terminal_io()->println(len);
-    
+
     terminal_io()->println("Reading 160 holes");
     len = 0;
     for (int k=0; k<160; k++) {
@@ -392,7 +520,7 @@ TERMINAL_COMMAND(benchmark, "Benchmark holes")
         }
     }
     terminal_io()->println(len);
-    
+
     terminal_io()->println("Latching the DAC 44100 times");
     start = micros();
     for (int k=0; k<44100; k++) {

@@ -3,7 +3,7 @@
 
 #include "samples.h"
 #define DYN
-#define DYN_SIZE        10
+#define DYN_SIZE        14
 
 void set_freq(float v);
 void set_tr(int v);
