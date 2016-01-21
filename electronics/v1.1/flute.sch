@@ -970,6 +970,21 @@ reflow soldering</description>
 <rectangle x1="-1.1684" y1="-1.2954" x2="-0.7112" y2="-0.7112" layer="51"/>
 <rectangle x1="-0.5001" y1="-0.3" x2="0.5001" y2="0.3" layer="35"/>
 </package>
+<package name="STEPUP-5V">
+<wire x1="0" y1="0" x2="14" y2="0" width="0.127" layer="21"/>
+<wire x1="0" y1="0" x2="0" y2="19" width="0.127" layer="21"/>
+<wire x1="0" y1="19" x2="14" y2="19" width="0.127" layer="21"/>
+<wire x1="14" y1="0" x2="14" y2="19" width="0.127" layer="21"/>
+<pad name="IN-" x="1" y="18" drill="0.8" shape="square"/>
+<pad name="OUT-" x="13" y="18" drill="0.8" shape="square"/>
+<pad name="IN+" x="1" y="1" drill="0.8" shape="square" rot="R90"/>
+<pad name="OUT+" x="13" y="1" drill="0.8" shape="square" rot="R90"/>
+<text x="1" y="15" size="1.27" layer="21">IN-</text>
+<text x="1" y="2" size="1.27" layer="21">IN+</text>
+<text x="9" y="15" size="1.27" layer="21">OUT-</text>
+<text x="9" y="2" size="1.27" layer="21">OUT+</text>
+<text x="2" y="9" size="2" layer="21">&gt;NAME</text>
+</package>
 </packages>
 <symbols>
 <symbol name="CONNEC_1X02">
@@ -1159,6 +1174,17 @@ reflow soldering</description>
 <pin name="B" x="-2.54" y="0" visible="off" length="short" direction="pas" swaplevel="1"/>
 <pin name="E" x="2.54" y="-5.08" visible="off" length="short" direction="pas" swaplevel="3" rot="R90"/>
 <pin name="C" x="2.54" y="5.08" visible="off" length="short" direction="pas" swaplevel="2" rot="R270"/>
+</symbol>
+<symbol name="STEPUP-5V">
+<wire x1="0" y1="0" x2="0" y2="12.7" width="0.254" layer="94"/>
+<wire x1="17.78" y1="12.7" x2="0" y2="12.7" width="0.254" layer="94"/>
+<wire x1="0" y1="0" x2="17.78" y2="0" width="0.254" layer="94"/>
+<wire x1="17.78" y1="0" x2="17.78" y2="12.7" width="0.254" layer="94"/>
+<pin name="IN-" x="-5.08" y="10.16" length="middle"/>
+<pin name="IN+" x="-5.08" y="2.54" length="middle"/>
+<pin name="OUT-" x="22.86" y="10.16" length="middle" rot="R180"/>
+<pin name="OUT+" x="22.86" y="2.54" length="middle" rot="R180"/>
+<text x="2.54" y="12.7" size="2" layer="94">&gt;NAME</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -1575,6 +1601,24 @@ reflow soldering</description>
 <connect gate="G$1" pin="B" pad="1"/>
 <connect gate="G$1" pin="C" pad="3"/>
 <connect gate="G$1" pin="E" pad="2"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="STEPUP-5V">
+<gates>
+<gate name="G$1" symbol="STEPUP-5V" x="-10.16" y="-5.08"/>
+</gates>
+<devices>
+<device name="" package="STEPUP-5V">
+<connects>
+<connect gate="G$1" pin="IN+" pad="IN+"/>
+<connect gate="G$1" pin="IN-" pad="IN-"/>
+<connect gate="G$1" pin="OUT+" pad="OUT+"/>
+<connect gate="G$1" pin="OUT-" pad="OUT-"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -2426,75 +2470,6 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 </deviceset>
 </devicesets>
 </library>
-<library name="transistor-npn">
-<description>&lt;b&gt;NPN Transistors&lt;/b&gt;&lt;p&gt;
-&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
-<packages>
-<package name="TO92-EBC">
-<description>&lt;b&gt;TO-92&lt;/b&gt;&lt;p&gt;
- grid 5.08 mm</description>
-<wire x1="-2.095" y1="-2.921" x2="2.095" y2="-2.921" width="0.127" layer="21"/>
-<wire x1="-2.413" y1="-0.1341" x2="2.413" y2="-0.1341" width="0.127" layer="21" curve="-129.583"/>
-<wire x1="1.136" y1="-1.397" x2="-1.136" y2="-1.397" width="0.127" layer="51"/>
-<wire x1="-2.413" y1="-0.1341" x2="-2.664" y2="-1.397" width="0.127" layer="51" curve="27.9376"/>
-<wire x1="-2.664" y1="-1.397" x2="-2.413" y2="-2.4059" width="0.127" layer="51" curve="22.4788"/>
-<wire x1="-1.404" y1="-1.397" x2="-2.664" y2="-1.397" width="0.127" layer="51"/>
-<wire x1="-2.4135" y1="-2.4059" x2="-2.095" y2="-2.921" width="0.127" layer="21" curve="13.0385"/>
-<wire x1="-1.136" y1="-1.397" x2="-1.404" y2="-1.397" width="0.127" layer="21"/>
-<wire x1="2.413" y1="-2.4059" x2="2.664" y2="-1.397" width="0.127" layer="51" curve="22.4788"/>
-<wire x1="2.664" y1="-1.397" x2="2.413" y2="-0.1341" width="0.127" layer="51" curve="27.9376"/>
-<wire x1="2.664" y1="-1.397" x2="1.404" y2="-1.397" width="0.127" layer="51"/>
-<wire x1="1.404" y1="-1.397" x2="1.136" y2="-1.397" width="0.127" layer="21"/>
-<wire x1="2.095" y1="-2.921" x2="2.4247" y2="-2.3818" width="0.127" layer="21" curve="13.6094"/>
-<pad name="C" x="-2.54" y="-1.27" drill="0.8128" shape="long" rot="R90"/>
-<pad name="E" x="2.54" y="-1.27" drill="0.8128" shape="long" rot="R90"/>
-<pad name="B" x="0" y="-1.27" drill="0.8128" shape="long" rot="R90"/>
-<text x="-2.54" y="1.778" size="1.27" layer="25" ratio="10">&gt;NAME</text>
-<text x="-2.54" y="-4.572" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
-</package>
-</packages>
-<symbols>
-<symbol name="NPN">
-<wire x1="2.54" y1="2.54" x2="0.508" y2="1.524" width="0.1524" layer="94"/>
-<wire x1="1.778" y1="-1.524" x2="2.54" y2="-2.54" width="0.1524" layer="94"/>
-<wire x1="2.54" y1="-2.54" x2="1.27" y2="-2.54" width="0.1524" layer="94"/>
-<wire x1="1.27" y1="-2.54" x2="1.778" y2="-1.524" width="0.1524" layer="94"/>
-<wire x1="1.54" y1="-2.04" x2="0.308" y2="-1.424" width="0.1524" layer="94"/>
-<wire x1="1.524" y1="-2.413" x2="2.286" y2="-2.413" width="0.254" layer="94"/>
-<wire x1="2.286" y1="-2.413" x2="1.778" y2="-1.778" width="0.254" layer="94"/>
-<wire x1="1.778" y1="-1.778" x2="1.524" y2="-2.286" width="0.254" layer="94"/>
-<wire x1="1.524" y1="-2.286" x2="1.905" y2="-2.286" width="0.254" layer="94"/>
-<wire x1="1.905" y1="-2.286" x2="1.778" y2="-2.032" width="0.254" layer="94"/>
-<text x="-10.16" y="7.62" size="1.778" layer="95">&gt;NAME</text>
-<text x="-10.16" y="5.08" size="1.778" layer="96">&gt;VALUE</text>
-<rectangle x1="-0.254" y1="-2.54" x2="0.508" y2="2.54" layer="94"/>
-<pin name="B" x="-2.54" y="0" visible="off" length="short" direction="pas" swaplevel="1"/>
-<pin name="E" x="2.54" y="-5.08" visible="off" length="short" direction="pas" swaplevel="3" rot="R90"/>
-<pin name="C" x="2.54" y="5.08" visible="off" length="short" direction="pas" swaplevel="2" rot="R270"/>
-</symbol>
-</symbols>
-<devicesets>
-<deviceset name="BC550*" prefix="Q">
-<description>&lt;b&gt;NPN Transistor&lt;/b&gt;</description>
-<gates>
-<gate name="G$1" symbol="NPN" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="TO92-EBC">
-<connects>
-<connect gate="G$1" pin="B" pad="B"/>
-<connect gate="G$1" pin="C" pad="C"/>
-<connect gate="G$1" pin="E" pad="E"/>
-</connects>
-<technologies>
-<technology name="B"/>
-<technology name="C"/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-</devicesets>
-</library>
 <library name="TP4056">
 <packages>
 <package name="SOP-8">
@@ -2566,7 +2541,7 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <classes>
 <class number="0" name="default" width="0.3048" drill="0">
 </class>
-<class number="1" name="alim" width="0.762" drill="0">
+<class number="1" name="alim" width="0.508" drill="0">
 <clearance class="1" value="0.0762"/>
 </class>
 </classes>
@@ -2603,11 +2578,8 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <part name="R16" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="10k"/>
 <part name="R17" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="10k"/>
 <part name="R18" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="10k"/>
-<part name="JMP" library="rhoban" deviceset="CONNEC_1X02" device="BASIC"/>
 <part name="PWR" library="rhoban" deviceset="CONNEC_1X02" device="BASIC"/>
 <part name="MAPLE" library="rhoban" deviceset="MAPLE_MINI" device=""/>
-<part name="Q1" library="transistor-npn" deviceset="BC550*" device="" technology="C"/>
-<part name="Q2" library="transistor-npn" deviceset="BC550*" device="" technology="C"/>
 <part name="R1" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="1k"/>
 <part name="R2" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="1k"/>
 <part name="U$17" library="rhoban" deviceset="RHOBAN_MCP4822" device="" value="MCP4822"/>
@@ -2642,6 +2614,9 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <part name="R27" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="270"/>
 <part name="U$27" library="rhoban" deviceset="NPN" device="_BC817,215"/>
 <part name="R28" library="SparkFun-Passives" deviceset="RESISTOR" device="0805-RES" value="2K"/>
+<part name="SU-5V" library="rhoban" deviceset="STEPUP-5V" device=""/>
+<part name="U$28" library="rhoban" deviceset="NPN" device="_BC817,215"/>
+<part name="U$29" library="rhoban" deviceset="NPN" device="_BC817,215"/>
 </parts>
 <sheets>
 <sheet>
@@ -2685,11 +2660,8 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <instance part="R16" gate="G$1" x="279.4" y="-17.78" rot="R270"/>
 <instance part="R17" gate="G$1" x="223.52" y="-15.24" rot="R270"/>
 <instance part="R18" gate="G$1" x="226.06" y="-58.42" rot="R270"/>
-<instance part="JMP" gate="G$1" x="83.82" y="-43.18"/>
 <instance part="PWR" gate="G$1" x="83.82" y="-58.42"/>
 <instance part="MAPLE" gate="G$1" x="78.74" y="35.56"/>
-<instance part="Q1" gate="G$1" x="226.06" y="-104.14"/>
-<instance part="Q2" gate="G$1" x="261.62" y="-104.14"/>
 <instance part="R1" gate="G$1" x="215.9" y="-104.14"/>
 <instance part="R2" gate="G$1" x="251.46" y="-104.14"/>
 <instance part="U$17" gate="G$1" x="172.72" y="12.7"/>
@@ -2724,6 +2696,9 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <instance part="R27" gate="G$1" x="144.78" y="-127" rot="R180"/>
 <instance part="U$27" gate="G$1" x="187.96" y="-127"/>
 <instance part="R28" gate="G$1" x="177.8" y="-127" rot="R180"/>
+<instance part="SU-5V" gate="G$1" x="60.96" y="-152.4"/>
+<instance part="U$28" gate="G$1" x="226.06" y="-104.14"/>
+<instance part="U$29" gate="G$1" x="261.62" y="-104.14"/>
 </instances>
 <busses>
 </busses>
@@ -2780,14 +2755,14 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <label x="60.96" y="33.02" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="Q1" gate="G$1" pin="E"/>
 <wire x1="228.6" y1="-109.22" x2="228.6" y2="-114.3" width="0.1524" layer="91"/>
 <wire x1="228.6" y1="-114.3" x2="241.3" y2="-114.3" width="0.1524" layer="91"/>
 <wire x1="241.3" y1="-121.92" x2="241.3" y2="-114.3" width="0.1524" layer="91"/>
-<pinref part="Q2" gate="G$1" pin="E"/>
 <wire x1="241.3" y1="-114.3" x2="264.16" y2="-114.3" width="0.1524" layer="91"/>
 <wire x1="264.16" y1="-114.3" x2="264.16" y2="-109.22" width="0.1524" layer="91"/>
 <label x="238.76" y="-124.46" size="1.778" layer="95"/>
+<pinref part="U$28" gate="G$1" pin="E"/>
+<pinref part="U$29" gate="G$1" pin="E"/>
 </segment>
 <segment>
 <pinref part="U$17" gate="G$1" pin="VSS"/>
@@ -2891,18 +2866,18 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <wire x1="190.5" y1="-132.08" x2="190.5" y2="-134.62" width="0.1524" layer="91"/>
 <label x="190.5" y="-137.16" size="1.778" layer="95"/>
 </segment>
+<segment>
+<pinref part="SU-5V" gate="G$1" pin="IN-"/>
+<wire x1="55.88" y1="-142.24" x2="53.34" y2="-142.24" width="0.1524" layer="91"/>
+<label x="48.26" y="-142.24" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="SU-5V" gate="G$1" pin="OUT-"/>
+<wire x1="83.82" y1="-142.24" x2="86.36" y2="-142.24" width="0.1524" layer="91"/>
+<label x="86.36" y="-142.24" size="1.778" layer="95"/>
+</segment>
 </net>
-<net name="VCC" class="0">
-<segment>
-<pinref part="JMP" gate="G$1" pin="2"/>
-<wire x1="86.36" y1="-43.18" x2="78.74" y2="-43.18" width="0.1524" layer="91"/>
-<label x="71.12" y="-43.18" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="MAPLE" gate="G$1" pin="VIN"/>
-<wire x1="96.52" y1="-12.7" x2="101.6" y2="-12.7" width="0.1524" layer="91"/>
-<label x="104.14" y="-12.7" size="1.778" layer="95"/>
-</segment>
+<net name="VCC" class="1">
 <segment>
 <wire x1="132.08" y1="-20.32" x2="129.54" y2="-20.32" width="0.1524" layer="91"/>
 <label x="124.46" y="-20.32" size="1.778" layer="95"/>
@@ -2959,16 +2934,6 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <label x="45.72" y="-30.48" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="IC1" gate="G$1" pin="VCC"/>
-<wire x1="99.06" y1="-129.54" x2="96.52" y2="-129.54" width="0.1524" layer="91"/>
-<label x="88.9" y="-129.54" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="R25" gate="G$1" pin="2"/>
-<wire x1="139.7" y1="-111.76" x2="139.7" y2="-109.22" width="0.1524" layer="91"/>
-<label x="139.7" y="-109.22" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="R26" gate="G$1" pin="1"/>
 <wire x1="149.86" y1="-124.46" x2="152.4" y2="-124.46" width="0.1524" layer="91"/>
 <label x="152.4" y="-124.46" size="1.778" layer="95"/>
@@ -2977,6 +2942,21 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <pinref part="R27" gate="G$1" pin="1"/>
 <wire x1="149.86" y1="-127" x2="152.4" y2="-127" width="0.1524" layer="91"/>
 <label x="152.4" y="-127" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="SU-5V" gate="G$1" pin="OUT+"/>
+<wire x1="83.82" y1="-149.86" x2="86.36" y2="-149.86" width="0.1524" layer="91"/>
+<label x="86.36" y="-149.86" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="AMP" gate="G$1" pin="VIN"/>
+<wire x1="289.56" y1="17.78" x2="287.02" y2="17.78" width="0.1524" layer="91"/>
+<label x="281.94" y="17.78" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R22" gate="G$1" pin="2"/>
+<wire x1="284.48" y1="38.1" x2="284.48" y2="40.64" width="0.1524" layer="91"/>
+<label x="284.48" y="40.64" size="1.778" layer="95" rot="R90"/>
 </segment>
 </net>
 <net name="HOLE4" class="0">
@@ -3149,16 +3129,6 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 </net>
 <net name="VIN" class="1">
 <segment>
-<pinref part="JMP" gate="G$1" pin="1"/>
-<wire x1="86.36" y1="-40.64" x2="78.74" y2="-40.64" width="0.1524" layer="91"/>
-<label x="71.12" y="-40.64" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="AMP" gate="G$1" pin="VIN"/>
-<wire x1="289.56" y1="17.78" x2="287.02" y2="17.78" width="0.1524" layer="91"/>
-<label x="281.94" y="17.78" size="1.778" layer="95"/>
-</segment>
-<segment>
 <pinref part="U$14" gate="G$1" pin="+"/>
 <wire x1="30.48" y1="-33.02" x2="30.48" y2="-30.48" width="0.1524" layer="91"/>
 <label x="30.48" y="-30.48" size="1.778" layer="95"/>
@@ -3167,11 +3137,6 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <pinref part="U$16" gate="G$1" pin="P$2"/>
 <wire x1="38.1" y1="-58.42" x2="40.64" y2="-58.42" width="0.1524" layer="91"/>
 <label x="40.64" y="-58.42" size="1.778" layer="95"/>
-</segment>
-<segment>
-<pinref part="R22" gate="G$1" pin="2"/>
-<wire x1="284.48" y1="38.1" x2="284.48" y2="40.64" width="0.1524" layer="91"/>
-<label x="284.48" y="40.64" size="1.778" layer="95" rot="R90"/>
 </segment>
 <segment>
 <wire x1="335.28" y1="-7.62" x2="335.28" y2="-12.7" width="0.1524" layer="91"/>
@@ -3223,6 +3188,16 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <label x="167.64" y="-127" size="1.778" layer="95"/>
 <pinref part="R28" gate="G$1" pin="2"/>
 </segment>
+<segment>
+<pinref part="SU-5V" gate="G$1" pin="IN+"/>
+<wire x1="55.88" y1="-149.86" x2="53.34" y2="-149.86" width="0.1524" layer="91"/>
+<label x="48.26" y="-149.86" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="MAPLE" gate="G$1" pin="21"/>
+<wire x1="71.12" y1="12.7" x2="68.58" y2="12.7" width="0.1524" layer="91"/>
+<label x="60.96" y="12.7" size="1.778" layer="95"/>
+</segment>
 </net>
 <net name="AUDIO" class="0">
 <segment>
@@ -3258,9 +3233,9 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <label x="185.42" y="-73.66" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="Q1" gate="G$1" pin="C"/>
 <wire x1="228.6" y1="-99.06" x2="228.6" y2="-96.52" width="0.1524" layer="91"/>
 <label x="228.6" y="-96.52" size="1.778" layer="95"/>
+<pinref part="U$28" gate="G$1" pin="C"/>
 </segment>
 </net>
 <net name="HOLES_GND2" class="0">
@@ -3285,23 +3260,23 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <label x="297.18" y="-76.2" size="1.778" layer="95"/>
 </segment>
 <segment>
-<pinref part="Q2" gate="G$1" pin="C"/>
 <wire x1="264.16" y1="-99.06" x2="264.16" y2="-96.52" width="0.1524" layer="91"/>
 <label x="264.16" y="-96.52" size="1.778" layer="95"/>
+<pinref part="U$29" gate="G$1" pin="C"/>
 </segment>
 </net>
 <net name="N$3" class="0">
 <segment>
 <pinref part="R1" gate="G$1" pin="2"/>
-<pinref part="Q1" gate="G$1" pin="B"/>
 <wire x1="220.98" y1="-104.14" x2="223.52" y2="-104.14" width="0.1524" layer="91"/>
+<pinref part="U$28" gate="G$1" pin="B"/>
 </segment>
 </net>
 <net name="N$4" class="0">
 <segment>
 <pinref part="R2" gate="G$1" pin="2"/>
-<pinref part="Q2" gate="G$1" pin="B"/>
 <wire x1="256.54" y1="-104.14" x2="259.08" y2="-104.14" width="0.1524" layer="91"/>
+<pinref part="U$29" gate="G$1" pin="B"/>
 </segment>
 </net>
 <net name="HOLES_EN" class="0">
@@ -3647,6 +3622,23 @@ Standard 0603 ceramic capacitor, and 0.1" leaded capacitor.</description>
 <pinref part="U$25" gate="G$1" pin="OUT"/>
 <wire x1="88.9" y1="-93.98" x2="91.44" y2="-93.98" width="0.1524" layer="91"/>
 <label x="91.44" y="-93.98" size="1.778" layer="95"/>
+</segment>
+</net>
+<net name="USB+" class="0">
+<segment>
+<pinref part="MAPLE" gate="G$1" pin="VIN"/>
+<wire x1="96.52" y1="-12.7" x2="101.6" y2="-12.7" width="0.1524" layer="91"/>
+<label x="104.14" y="-12.7" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="IC1" gate="G$1" pin="VCC"/>
+<wire x1="99.06" y1="-129.54" x2="96.52" y2="-129.54" width="0.1524" layer="91"/>
+<label x="88.9" y="-129.54" size="1.778" layer="95"/>
+</segment>
+<segment>
+<pinref part="R25" gate="G$1" pin="2"/>
+<wire x1="139.7" y1="-111.76" x2="139.7" y2="-109.22" width="0.1524" layer="91"/>
+<label x="139.7" y="-109.22" size="1.778" layer="95"/>
 </segment>
 </net>
 </nets>
