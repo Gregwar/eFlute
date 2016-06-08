@@ -6,7 +6,7 @@
 LIB_MAPLE_HOME = $(HOME)/Maple/LibMaple
 LIB_ROBOT_HOME = $(HOME)/Maple/LibRhoban
 LIB_SDFAT = SdFat
-PATH := $(PATH):$(CURDIR)/../BinutilsArm/bin
+PATH := $(HOME)/Maple/BinutilsArm/bin:$(PATH)
 
 ##
 ## Useful paths, constants, etc.
@@ -68,7 +68,8 @@ TARGET_FLAGS += -I$(LIBRARIES_PATH) # for internal lib. includes, e.g. <Wire/Wir
 GLOBAL_CFLAGS   := -Os -g3 -gdwarf-2 -nostdlib   \
                    -ffunction-sections -fdata-sections \
 		   -Wl,--gc-sections $(TARGET_FLAGS) \
-		   -DBOOTLOADER_$(BOOTLOADER) -DSPI1_REMAPPED
+		   -DBOOTLOADER_$(BOOTLOADER) -DSPI1_REMAPPED \
+		   -DUSB_DISC_INVERTED
 #		   -DFAST_ADC
 GLOBAL_CXXFLAGS := -fno-rtti -fno-exceptions -Wall $(TARGET_FLAGS)
 GLOBAL_ASFLAGS  := -x assembler-with-cpp $(TARGET_FLAGS)

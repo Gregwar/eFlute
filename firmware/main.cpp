@@ -7,21 +7,23 @@
 #include "holes.h"
 #include "blow.h"
 #include "samples.h"
+#include "bt.h"
 #include "dyn.h"
 
+HardwareTimer timer(1);
 bool isUSB = false;
 
 TERMINAL_COMMAND(rc, "Go to RC mode")
 {
-    Serial1.begin(115200);
-    terminal_init(&Serial1);
+    Serial3.begin(115200);
+    terminal_init(&Serial3);
     isUSB = false;
 }
 
 TERMINAL_COMMAND(forward,
-        "Go to forward mode, the Serial1 will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
+        "Go to forward mode, the Serial3 will be forwarded to USB and vice-versa. Usage: forward [baudrate]")
 {
-    int baudrate = 921600;
+    int baudrate = 115200;
     char buffer[512];
     unsigned int pos;
     terminal_io()->print("The forward mode will be enabled, ");
@@ -33,12 +35,12 @@ TERMINAL_COMMAND(forward,
     terminal_io()->print("Using baudrate ");
     terminal_io()->println(baudrate);
 
-    Serial1.begin(baudrate);
+    Serial3.begin(baudrate);
 
     while (1) {
         pos = 0;
-        while (Serial1.available() && pos < sizeof(buffer)) {
-            buffer[pos++] = Serial1.read();
+        while (Serial3.available() && pos < sizeof(buffer)) {
+            buffer[pos++] = Serial3.read();
         }
 
         if (pos > 0) {
@@ -46,7 +48,7 @@ TERMINAL_COMMAND(forward,
         }
 
         while (SerialUSB.available()) {
-            Serial1.write(SerialUSB.read());
+            Serial3.write(SerialUSB.read());
         }
     }
 }
@@ -87,6 +89,22 @@ void dac_init()
     pinMode(DAC_CS, OUTPUT);
     digitalWrite(DAC_CS, HIGH);
     dac_dev = dac_spi.c_dev();
+}
+
+inline void dac_shut()
+{
+    int value = 0;
+    gpio_write_bit(PIN_MAP[DAC_CS].gpio_device, PIN_MAP[DAC_CS].gpio_bit, LOW);
+    char data[2];
+    data[0] = (value>>8)&0xff;
+    data[1] = (value>>0)&0xff;
+
+    spi_tx_inline(dac_dev, data, 1);
+    spi_tx_inline(dac_dev, data+1, 1);
+    for (int K=0; K<7; K++) {
+        asm volatile("nop");
+    }
+    gpio_write_bit(PIN_MAP[DAC_CS].gpio_device, PIN_MAP[DAC_CS].gpio_bit, HIGH);
 }
 
 inline void dac_set(int value)
@@ -193,8 +211,6 @@ TERMINAL_COMMAND(dac, "Dac debug")
     dac_latch();
 }
 
-TERMINAL_PARAMETER_INT(kkk, "KKK", 0);
-
 void interrupt()
 {
     if (bin) {
@@ -204,7 +220,6 @@ void interrupt()
         static int k = 0;
 
         if (currentSample != NULL && vol > 0) {
-            kkk++;
             dac_latch();
             int val = compute_to_play();
 
@@ -238,38 +253,31 @@ void setup()
         pinMode(buttons[k], INPUT_PULLUP);
     }
 
-    pinMode(22, OUTPUT);
-    digitalWrite(22, HIGH);
-    delay(100);
-    digitalWrite(22, LOW);
-    Serial1.begin(38400);
-    Serial1.write("AT+RESET\r\r");
-    Serial1.write("AT+RESET\r\r");
-    Serial1.write("AT+RESET\r\r");
-    Serial1.begin(115200);
+    // Bluetooth setup
+    bt_init();
 
     // Terminal
-    terminal_init(&Serial1);
+    terminal_init(&Serial3);
 
     // DAC
     dac_init();
+
 
 #ifdef DYN
     dyn_init();
 #endif
 
     // Initializing blow
-    blow_init();
+//    blow_init();
 
     // Holes
-    holes_init();
+//    holes_init();
 
     // Remapping SPI1 for sd card
     //    afio_remap(AFIO_REMAP_SPI1);
 
     // Ticking @32000
 #ifndef DEBUG
-    HardwareTimer timer(1);
     timer.pause();
     timer.setPrescaleFactor(1);
     timer.setOverflow(1632);
@@ -332,6 +340,7 @@ void loop()
     // Terminal
     terminal_tick();
 
+    /*
     if (k++ > 10) {
         k = 0;
         // Ticking holes
@@ -454,6 +463,7 @@ void loop()
         packet[5] = 0x00;
         terminal_io()->write(packet, 6);
     }
+    */
 }
 
 TERMINAL_COMMAND(test, "Test")
@@ -530,4 +540,11 @@ TERMINAL_COMMAND(benchmark, "Benchmark holes")
     terminal_io()->println(len);
 
     timer.resume();
+}
+
+TERMINAL_COMMAND(ss, "Small sinus")
+{
+    targetVol = atoi(argv[0]);
+    setSample(&dyn[0]);
+    delay(1000);
 }

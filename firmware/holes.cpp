@@ -43,13 +43,13 @@ bool holes_tick()
     static int i = 0;
 
     if (k == 0) {
-        holes_low[i] = analogRead(holes_pin[i]);
+        //holes_low[i] = analogRead(holes_pin[i]);
         holes_low[i] = 4095;
         i++;
 
         if (i >= 8) {
             digitalWrite(HOLES_EN, HIGH);
-            delay_us(10);
+            // delay_us(10);
             k = 1;
             i = 0;
         }
@@ -58,8 +58,8 @@ bool holes_tick()
         i++;
 
         if (i >= 8) {
-            digitalWrite(HOLES_EN, LOW);
-            delay_us(10);
+            // digitalWrite(HOLES_EN, LOW);
+            // delay_us(10);
             k = 0;
             i = 0;
         }
@@ -78,7 +78,7 @@ char holes_value()
     char val = 0;
 
     for (int k=0; k<8; k++) {
-        val |= (holes[k] > 300)<<k;
+        val |= (holes[k] > 50)<<k;
     }
 
     return val;
