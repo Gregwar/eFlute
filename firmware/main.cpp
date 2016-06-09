@@ -9,6 +9,7 @@
 #include "samples.h"
 #include "bt.h"
 #include "dyn.h"
+#include "mux.h"
 
 HardwareTimer timer(1);
 bool isUSB = false;
@@ -266,12 +267,15 @@ void setup()
 #ifdef DYN
     dyn_init();
 #endif
+    
+    // Mux
+    mux_init();
 
     // Initializing blow
-//    blow_init();
+    blow_init();
 
     // Holes
-//    holes_init();
+    holes_init();
 
     // Remapping SPI1 for sd card
     //    afio_remap(AFIO_REMAP_SPI1);
@@ -340,7 +344,6 @@ void loop()
     // Terminal
     terminal_tick();
 
-    /*
     if (k++ > 10) {
         k = 0;
         // Ticking holes
@@ -425,7 +428,7 @@ void loop()
     if (blow_tick()) {
         blows_st++;
         static bool inhaling = false;
-        int tmp = (blow_value()/100)-3;
+        int tmp = (blow_value()/100)-30;
 
         if (inhaling) {
             if (tmp > -40) inhaling = false;
@@ -463,7 +466,6 @@ void loop()
         packet[5] = 0x00;
         terminal_io()->write(packet, 6);
     }
-    */
 }
 
 TERMINAL_COMMAND(test, "Test")
