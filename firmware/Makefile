@@ -6,7 +6,7 @@
 LIB_MAPLE_HOME = $(HOME)/Maple/LibMaple
 LIB_ROBOT_HOME = $(HOME)/Maple/LibRhoban
 LIB_SDFAT = SdFat
-PATH := $(HOME)/Maple/BinutilsArm/bin:$(PATH)
+#PATH := $(HOME)/Maple/BinutilsArm/bin:$(PATH)
 
 ##
 ## Useful paths, constants, etc.
