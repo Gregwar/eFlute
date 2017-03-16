@@ -3,8 +3,8 @@
 .DEFAULT_GOAL := sketch
 
 ## Local configuration
-LIB_MAPLE_HOME = $(HOME)/Maple/LibMaple
-LIB_ROBOT_HOME = $(HOME)/Maple/LibRhoban
+LIB_MAPLE_HOME = Maple/LibMaple
+LIB_ROBOT_HOME = Maple/LibRhoban
 LIB_SDFAT = SdFat
 #PATH := $(HOME)/Maple/BinutilsArm/bin:$(PATH)
 

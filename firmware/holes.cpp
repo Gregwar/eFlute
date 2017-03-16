@@ -110,7 +110,7 @@ char holes_value()
     char val = 0;
 
     for (int k=0; k<8; k++) {
-        val |= (holes[k] > 500)<<k;
+        val |= (holes[k] > 900)<<k;
     }
 
     return val;
