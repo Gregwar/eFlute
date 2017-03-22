@@ -2,8 +2,7 @@
 
 ![eFlute](docs/eflute.jpg)
 
-**WARNING: This is still a work in progress, which is not well documented and with
-uncertain release date and evolution**
+**WARNING: This is still a work in progress, which is really poorly documented and with uncertain release date and evolution**
 
 ## Video
 
@@ -13,3 +12,4 @@ uncertain release date and evolution**
 
 This project is under CC-BY-NC license. If you're not sure about what you can
 do, you should ask the author Grégoire Passault (g.passault@gmail.com).
+
