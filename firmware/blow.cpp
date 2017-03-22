@@ -42,7 +42,7 @@ bool blow_tick()
 
         int nOffset = (winMin+winMax)/2;
         int delta = abs(nOffset-offset);
-        if (winSize > (10+delta/2)) {
+        if (winSize > (10+delta/3)) {
             offset = nOffset;
             winSize = 0;
             winMin = winMax = sample;
